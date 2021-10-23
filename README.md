@@ -13,7 +13,7 @@ Create a Python virtual environment, install Plone 6.0.0a1 and one addon.
 
 ```shell
 cd backend
-make setup
+make build
 ```
 
 Run the Plone Backend instance
