@@ -30,11 +30,8 @@ clean: clean-build clean-pyc clean-test ## remove all build, test, coverage and 
 
 .PHONY: clean-build
 clean-build: ## remove build artifacts
-	rm -fr build/
-	rm -fr dist/
-	rm -fr .eggs/
+	rm -Rf bin lib lib64 include
 	find . -name '*.egg-info' -exec rm -fr {} +
-	find . -name '*.egg' -exec rm -f {} +
 
 .PHONY: clean-pyc
 clean-pyc: ## remove Python file artifacts
