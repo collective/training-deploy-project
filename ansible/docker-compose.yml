@@ -1,0 +1,38 @@
+version: "3"
+services:
+
+  frontend:
+    image: plone/plone-frontend:14.0.0-alpha-node14
+    environment:
+      RAZZLE_INTERNAL_API_PATH: http://backend:8080/Plone
+      RAZZLE_DEV_PROXY_API_PATH: http://backend:8080/Plone
+    restart: always
+    ports:
+    - "3000:3000"
+    depends_on:
+      - backend
+
+  backend:
+    image: plone/plone-backend:6.0-dev-python39
+    environment:
+      RELSTORAGE_DSN: "dbname='plone' user='plone' host='db' password='plone'"
+    restart: always
+    ports:
+    - "8080:8080"
+    depends_on:
+      - db
+
+  db:
+    image: postgres
+    environment:
+      POSTGRES_USER: plone
+      POSTGRES_PASSWORD: plone
+      POSTGRES_DB: plone
+    restart: always
+    volumes:
+      - data:/var/lib/postgresql/data    
+    ports:
+    - "5432:5432"
+
+volumes:
+  data: {}

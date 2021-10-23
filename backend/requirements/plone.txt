@@ -1,0 +1,3 @@
+-c https://dist.plone.org/release/6.0.0a1/constraints.txt
+Plone
+plone.volto

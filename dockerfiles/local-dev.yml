@@ -1,0 +1,26 @@
+version: "3"
+services:
+
+  frontend:
+    build:
+      context: ../frontend
+    environment:
+      RAZZLE_INTERNAL_API_PATH: http://backend:8080/Plone
+      RAZZLE_DEV_PROXY_API_PATH: http://backend:8080/Plone
+    restart: always
+    ports:
+    - "3000:3000"
+    depends_on:
+      - backend
+
+  backend:
+    build:
+      context: ../backend
+    restart: always
+    ports:
+    - "8080:8080"
+    volumes:
+      - data:/data        
+
+volumes:
+  data: {}

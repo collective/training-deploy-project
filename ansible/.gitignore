@@ -1,0 +1,7 @@
+.vagrant
+.vagrant_private_key
+bin
+include
+lib
+lib64
+pyvenv.cfg

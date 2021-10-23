@@ -1,0 +1,1 @@
+pas.plugins.authomatic>=1.0b2
