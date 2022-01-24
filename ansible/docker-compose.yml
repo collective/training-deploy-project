@@ -2,7 +2,7 @@ version: "3"
 services:
 
   frontend:
-    image: plone/plone-frontend:14.0.0-alpha-node14
+    image: plone/plone-frontend:14.0.0-node16
     environment:
       RAZZLE_INTERNAL_API_PATH: http://backend:8080/Plone
       RAZZLE_DEV_PROXY_API_PATH: http://backend:8080/Plone
