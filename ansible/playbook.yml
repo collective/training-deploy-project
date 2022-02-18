@@ -1,0 +1,91 @@
+---  
+  - hosts: all
+    gather_facts: True
+    name: "Run Specific Role"
+    vars:
+      mymenu:
+        - build-dev-vm
+        - build-local-vm
+        - build-remote-vm
+      allowed_items:
+        - "1"
+        - "2"
+        - "3"
+    vars_prompt:
+      - name: runmenu
+        prompt: "Run\n1 - {{ mymenu[0] }}\n2 - {{ mymenu[1] }}\n3 - {{ mymenu[2] }}\n[Enter Values 1,2,3]"
+        private: no
+    pre_tasks:
+    - name: Set Fact
+      set_fact:
+        menu{{ item  }}: "menu{{ item  }}"
+      with_items: "{{ runmenu.split(',') }}"
+      when: item in allowed_items
+
+
+  - hosts: hostfacts
+    become: no
+    pre_tasks:
+    - name: Fetch the ipv4 address
+      set_fact:
+        ploneDEV_IP: "{{ hostvars['vm-ansible-host']['ansible_facts']['eth0']['ipv4']['address'] }}"
+    - name: Set devUser
+      set_fact:
+        devUser: "{{ hostvars['vm-ansible-host']['ansible_user'] }}"
+
+
+  - hosts: vm-ansible-remote
+    become: no
+    pre_tasks:
+      - block:
+        - name: Set remoteHost
+          set_fact:
+          remoteHost: "{{ hostvars['vm-ansible-remote']['ansible_host'] }}"
+        - name: Set remotePort
+          set_fact:
+          remotePort: "{{ hostvars['vm-ansible-remote']['ansible_port'] }}"
+        - name: create docker context
+          shell: docker context create vm-ansible-remote --description "Plone Deployment training" --docker "host=ssh://{{ remoteHost }}:{{ remotePort }}"
+          delegate_to: vm-ansible-host
+        - name: "Prompt for Remote password"
+          pause:
+            prompt: "Remote Plone VM Password"
+          register: result
+        - name: "Store ploneVM_password variable"
+          set_fact:
+            ploneVM_password: "{{ result.user_input }}"
+        - name: "Prompt for Remote VM Name"
+          pause:
+            prompt: "Remote Plone VM Name"
+          register: result
+        - name: "Store ploneVM_name variable"
+          set_fact:
+            ploneVM_name: "{{ result.user_input }}"
+        when: menu3|d('')
+    name: "Deploy setup"
+    roles:
+      - {role: setup_client, tags: 'setup_client', when: menu3|d('')}
+
+  - hosts: vagrant
+    become: yes
+    pre_tasks:
+      - block:
+        - name: make vagrant-provision
+          shell: make vagrant-provision
+          args:
+            chdir: /home/{{ devUser }}/training-deploy-project/ansible/roles/deploy_local/
+          delegate_to: vm-ansible-host
+        - name: create docker context
+          shell: docker context create vagrant --description "Plone Deployment training" --docker "host=ssh://plone@127.0.0.1:2222"
+          delegate_to: vm-ansible-host
+    name: "Deploy setup"
+    roles:
+      - {role: setup_client, tags: 'setup_client', when: menu2|d('')}
+      
+  - hosts: vm-ansible-host
+    become: no
+    name: "Deploy environment or create new VM"
+    roles:
+      - {role: setup_host, tags: 'setup_host', when: menu1|d('')}
+      - {role: deploy_local, tags: 'deploy_local', when: menu2|d('')}
+      - {role: deploy_remote, tags: 'deploy_remote', when: menu3|d('')}
