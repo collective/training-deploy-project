@@ -1,0 +1,34 @@
+### Defensive settings for make:
+#     https://tech.davis-hansson.com/p/make/
+SHELL:=bash
+.ONESHELL:
+.SHELLFLAGS:=-xeu -o pipefail -O inherit_errexit -c
+.SILENT:
+.DELETE_ON_ERROR:
+MAKEFLAGS+=--warn-undefined-variables
+MAKEFLAGS+=--no-builtin-rules
+
+
+# We like colors
+# From: https://coderwall.com/p/izxssa/colored-makefile-for-golang-projects
+RED=`tput setaf 1`
+GREEN=`tput setaf 2`
+RESET=`tput sgr0`
+YELLOW=`tput setaf 3`
+
+.PHONY: all
+all: build
+
+# Add the following 'help' target to your Makefile
+# And add help text after each target name starting with '\#\#'
+.PHONY: help
+help: ## This help message
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
+
+.PHONY: compose-pull-remote
+compose-pull-remote: ## Run Compose pull remote
+	DOCKER_CONTEXT=vm-ansible-remote docker-compose --project-directory project pull
+
+.PHONY: compose-up-remote
+compose-up-remote: ## Run Compose up remote
+	DOCKER_CONTEXT=vm-ansible-remote docker-compose --project-directory project up -d
