@@ -1,0 +1,60 @@
+---
+# tasks file for deploy_setup
+  - name: grab hostvars
+    setup:
+
+  - name: Install Packages
+    ansible.builtin.apt:
+      name:
+        - nginx
+        - docker.io
+        - python3-pip
+      state: present
+      update_cache: yes
+
+  - name: Install Docker Python Packages
+    ansible.builtin.pip:
+      name:
+        - docker
+        - docker-compose
+      state: present
+
+  - name: Create user plone
+    ansible.builtin.user:
+      name: plone
+      comment: Plone User
+      groups:
+        - docker
+      shell: '/bin/bash'
+      remove: yes
+      append: yes
+      state: present
+   
+  - name: Set SSH Key for plone
+    vars:
+      playbook2: "{{ hostvars['vm-ansible-host']['playbook_idrsa2'] }}"
+    ansible.builtin.authorized_key:
+      user: plone
+      key: "{{ item }}"
+      state: present
+    with_items:
+      - "{{ playbook2 }}"
+
+  - name: Create Project directory
+    ansible.builtin.file:
+      dest: /home/plone/project/
+      state: directory
+      owner: plone
+      group: plone
+      mode: 0750
+
+  - name: Copy configuration
+    ansible.builtin.copy:
+      src: ../files/nginx/default
+      dest: /etc/nginx/sites-enabled/default
+      mode: '0644'
+
+  - name: restart nginx
+    service:
+      name: nginx
+      state: reloaded
