@@ -1,0 +1,66 @@
+---
+  # tasks file for devenv_deploy
+  - name: Set up authorized keys for the {{ devUser }} user
+    authorized_key: user={{ devUser }} key="{{item}}"
+    with_file:
+      - /home/{{ devUser }}/.ssh/id_rsa.pub
+
+  - name: Install Curl
+    become: yes
+    apt:
+      name: curl
+
+  - name: Download Node.js v16
+    become: yes
+    shell: curl -fsSL https://deb.nodesource.com/setup_16.x | bash -
+    args:
+      warn: false
+
+  - name: Install NodeJS, python3-dev, ansible, vagrant, pip
+    become: yes
+    apt:
+      name:
+        - nodejs
+        - python3-dev
+        - ansible
+        - vagrant
+      update_cache: yes
+
+  - name: Install Docker Python Packages
+    pip:
+      name:
+        - docker
+        - docker-compose
+      state: present
+
+  - name: Download VirtualBox
+    get_url:
+      url: https://download.virtualbox.org/virtualbox/6.1.26/virtualbox-6.1_6.1.26-145957~Debian~buster_amd64.deb 
+      dest: /home/{{ devUser }}
+
+  - name: Download libvpx
+    get_url:
+      url: http://ftp.br.debian.org/debian/pool/main/libv/libvpx/libvpx5_1.7.0-3+deb10u1_amd64.deb
+      dest: /home/{{ devUser }}
+
+  - name: Install libvpx
+    become: yes
+    apt: 
+      deb: ./libvpx5_1.7.0-3+deb10u1_amd64.deb
+      force: yes
+      install_recommends: yes
+
+  - name: Install VirtualBox Dependencies
+    become: yes
+    shell: apt install libsdl-ttf2.0-0 linux-image-$(uname -r) linux-headers-$(uname -r)
+
+  - name: Install VirtualBox
+    become: yes
+    apt: 
+      deb: ./virtualbox-6.1_6.1.26-145957~Debian~buster_amd64.deb
+      force: yes
+      install_recommends: yes
+
+  - name: Load vboxdrv kernal module to make Virtualbox provider
+    become: yes
+    shell: /sbin/vboxconfig
