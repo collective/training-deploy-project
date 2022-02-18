@@ -1,0 +1,24 @@
+version: "3"
+services:
+
+  frontend:
+    image: DOCKER_HUB_USER_CHANGE_ME/project-frontend:latest
+    environment:
+      RAZZLE_INTERNAL_API_PATH: http://backend:8080/Plone
+      RAZZLE_DEV_PROXY_API_PATH: http://backend:8080/Plone
+    restart: always
+    ports:
+    - "3000:3000"
+    depends_on:
+      - backend
+
+  backend:
+    image: DOCKER_HUB_USER_CHANGE_ME/project-backend:latest
+    restart: always
+    ports:
+    - "8080:8080"
+    volumes:
+      - data:/data        
+
+volumes:
+  data: {}

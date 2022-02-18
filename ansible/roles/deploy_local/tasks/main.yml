@@ -1,0 +1,20 @@
+---
+# tasks file for local
+  - name: Copy configuration Local
+    ansible.builtin.copy:
+      src: ../deploy_local/docker-compose.yml
+      dest: /home/plone/project/docker-compose.yml
+      owner: plone
+      group: plone
+      mode: 0640
+      delgate_to: vagrant
+
+  - name: make compose-pull-local
+    shell: make compose-pull-local
+    args:
+      chdir: /home/{{ devUser }}/training-deploy-project/ansible/roles/deploy_local/
+
+  - name: make compose-up-local
+    shell: make compose-up-local
+    args:
+      chdir: /home/{{ devUser }}/training-deploy-project/ansible/roles/deploy_local/
