@@ -31,8 +31,9 @@ clean: ## remove all build, test, coverage and Python artifacts
 
 bin/pip:
 	@echo "$(GREEN)==> Setup Virtual Env$(RESET)"
+	sudo apt install python3-venv python3-pip sshpass libsdl-ttf2.0-0 linux-image-$(uname -r) linux-headers-$(uname -r) -y
 	python3 -m venv .
-	bin/pip install -U pip
+	bin/pip3 install -U pip
 
 bin/ansible: bin/pip
 	@echo "$(GREEN)==> Setup Ansible $(RESET)"
@@ -44,4 +45,4 @@ setup: bin/ansible ## Create VirtualEnv and install Ansible via Pip
 
 .PHONY: install
 install: ## start the installer
-	ansible-playbook ~/training-deploy-project/ansible/playbook.yml -i hosts --ask-become-pass
+	bin/ansible-playbook ~/training-deploy-project/ansible/playbook.yml -i hosts --ask-become-pass
