@@ -16,13 +16,12 @@
     args:
       warn: false
 
-  - name: Install NodeJS, python3-dev, ansible, vagrant, pip
+  - name: Install NodeJS, python3-dev, vagrant
     become: yes
     apt:
       name:
         - nodejs
         - python3-dev
-        - ansible
         - vagrant
       update_cache: yes
 
@@ -64,3 +63,4 @@
   - name: Load vboxdrv kernal module to make Virtualbox provider
     become: yes
     shell: /sbin/vboxconfig
+
