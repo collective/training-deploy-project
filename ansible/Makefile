@@ -16,6 +16,9 @@ GREEN=`tput setaf 2`
 RESET=`tput sgr0`
 YELLOW=`tput setaf 3`
 
+# Set kernel info
+KERNEL=`uname -r`
+
 .PHONY: all
 all: build
 
@@ -31,7 +34,7 @@ clean: ## remove all build, test, coverage and Python artifacts
 
 bin/pip:
 	@echo "$(GREEN)==> Setup Virtual Env$(RESET)"
-	sudo apt install python3-venv python3-pip sshpass libsdl-ttf2.0-0 linux-image-$(uname -r) linux-headers-$(uname -r) -y
+	sudo apt install python3-venv python3-pip sshpass libsdl-ttf2.0-0 linux-image-$(KERNEL) linux-headers-$(KERNEL) -y
 	python3 -m venv .
 	bin/pip3 install -U pip
 
