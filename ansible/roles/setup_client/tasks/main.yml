@@ -48,6 +48,31 @@
       group: plone
       mode: 0750
 
+  - name: debug
+    debug:
+      msg: "{{ host }}"
+
+  - name: Copy configuration Local
+    ansible.builtin.copy:
+      src: ../deploy_remote/docker-compose.yml
+      dest: /home/plone/project/docker-compose.yml
+      owner: plone
+      group: plone
+      mode: 0640
+      when: '"{{ host }}" == "vm-ansible-remote"'
+
+  - name: Copy configuration Local
+    ansible.builtin.copy:
+      src: ../deploy_local/docker-compose.yml
+      dest: /home/plone/project/docker-compose.yml
+      owner: plone
+      group: plone
+      mode: 0640
+      when: '"{{ host }}" == "vagrant"'
+  - name: "Pause for debug"
+    pause:
+      prompt: "Do you want to continue?"
+
   - name: Copy configuration
     ansible.builtin.copy:
       src: ../files/nginx/default
@@ -58,3 +83,4 @@
     service:
       name: nginx
       state: reloaded
+
