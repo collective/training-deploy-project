@@ -29,15 +29,12 @@ help: ## This help message
 vagrant-destroy: ../../bin/ansible ## Provision Vagrant box 
 	@echo "$(GREEN)==> Provision Vagrant box $(RESET)"
 	sudo vagrant destroy
-	sudo rm .vagrant_private_key .vagrant
+	sudo rm -rf .vagrant
 
 .PHONY: vagrant-provision
 vagrant-provision: ../../bin/ansible ## Provision Vagrant box 
 	@echo "$(GREEN)==> Provision Vagrant box $(RESET)"
 	sudo vagrant up
-	sudo cp .vagrant/machines/default/virtualbox/private_key .vagrant_private_key
-	USER=`plone` sudo chown ${USER}: .vagrant_private_key
-	ssh-keygen -f ~/.ssh/known_hosts -R "[127.0.0.1]:2222"
 
 .PHONY: compose-pull-local
 compose-pull-local: ## Run Compose pull local
