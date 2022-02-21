@@ -32,13 +32,21 @@
         - docker-compose
       state: present
 
+  - name: Ensure group docker exists
+    become: yes
+    ansible.builtin.group:
+      name: docker
+      state: present
+
   - name: add user to docker group
+    become: yes
     ansible.builtin.user:
       name: "{{ devUser }}"
       groups: docker
       append: yes
 
   - name: reset ssh connection to allow user changes to affect ansible user
+    become: yes
     ansible.builtin.meta:
       reset_connection
 
@@ -58,10 +66,6 @@
       deb: ./libvpx5_1.7.0-3+deb10u1_amd64.deb
       force: yes
       install_recommends: yes
-
-  - name: Install VirtualBox Dependencies
-    become: yes
-    shell: apt install libsdl-ttf2.0-0 linux-image-$(uname -r) linux-headers-$(uname -r)
 
   - name: Install VirtualBox
     become: yes
