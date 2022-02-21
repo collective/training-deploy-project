@@ -1,13 +1,15 @@
 ---
 ## tasks file for deploy_remote
-  - name: Copy configuration Remote
-    ansible.builtin.copy:
-      src: ../deploy_remote/docker-compose.yml
-      dest: /home/plone/project/docker-compose.yml
-      owner: plone
-      group: plone
-      mode: 0640
-      delgate_to: vm-ansible-remote
+   - name: Set remoteHost
+     set_fact:
+       remoteHost: "{{ hostvars['vm-ansible-remote']['ansible_host'] }}"
+
+   - name: Set remotePort
+     set_fact:
+       remotePort: "{{ hostvars['vm-ansible-remote']['ansible_port'] }}"
+
+   - name: create docker context
+     shell: docker context create vm-ansible-remote --description "Plone Deployment training" --docker "host=ssh://{{ remoteHost }}:{{ remotePort }}"
 
   - name: make compose-pull-remote
     shell: make compose-pull-remote
