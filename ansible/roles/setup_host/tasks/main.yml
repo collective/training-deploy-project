@@ -23,7 +23,25 @@
         - nodejs
         - python3-dev
         - vagrant
+        - apt-transport-https
+        - software-properties-common
       update_cache: yes
+
+  - name: Add Docker’s official GPG key
+    become: yes
+    apt_key:
+      url: "https://download.docker.com/linux/{{ ansible_distribution | lower }}/gpg"
+      state: present
+
+  - name: Set up the stable repository
+    become: yes
+    apt_repository:
+      repo: "deb [arch=amd64] https://download.docker.com/linux/{{ ansible_distribution | lower }} {{ ansible_distribution_release | lower }} stable"
+      state: present
+
+  - name: Update apt and install docker-ce
+    become: yes
+    apt: update_cache=yes name=docker-ce state=latest
 
   - name: Install Docker Python Packages
     pip:
