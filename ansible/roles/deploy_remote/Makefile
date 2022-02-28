@@ -8,7 +8,6 @@ SHELL:=bash
 MAKEFLAGS+=--warn-undefined-variables
 MAKEFLAGS+=--no-builtin-rules
 
-
 # We like colors
 # From: https://coderwall.com/p/izxssa/colored-makefile-for-golang-projects
 RED=`tput setaf 1`
@@ -27,8 +26,9 @@ help: ## This help message
 
 .PHONY: compose-pull-remote
 compose-pull-remote: ## Run Compose pull remote
-	DOCKER_CONTEXT=vm-ansible-remote docker-compose --project-directory project pull
+	~/.local/bin/docker-compose --context vm-ansible-remote --project-directory project pull
 
 .PHONY: compose-up-remote
 compose-up-remote: ## Run Compose up remote
-	DOCKER_CONTEXT=vm-ansible-remote docker-compose --project-directory project up -d
+	~/.local/bin/docker-compose --context vm-ansible-remote --project-directory project up -d
+
