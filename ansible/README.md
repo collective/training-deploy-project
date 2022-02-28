@@ -1,5 +1,6 @@
 # Ansible deployment
 
+## Playbook components
 This Ansible implementation includes:
 
 3 menu options:
@@ -13,6 +14,7 @@ This Ansible implementation includes:
 * setup_client
 * setup_host
 
+## How to use this playbook
 For complete documentation, follow the complete README.md in this project's root.
 
 For quick summary, these steps will create a 3-tiered Plone solution (dev, staging, production) using Docker images:
