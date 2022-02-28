@@ -15,7 +15,7 @@ This Ansible implementation includes:
 * setup_host
 
 ## How to use this playbook
-For complete documentation, follow the complete README.md in this project's root.
+For complete documentation, follow the README.md in this project's root folder.
 
 For quick summary, these steps will create a 3-tiered Plone solution (dev, staging, production) using Docker images:
 * replace DOCKER_HUB_USER_CHANGE_ME with your Docker Hub username
