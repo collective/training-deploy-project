@@ -104,6 +104,7 @@ make release-images
 Run the installer:
 
 ```shell
+cd ansible
 make install
 ```
 
@@ -118,6 +119,7 @@ Choose menu option #2 and Ansible will deploy your Docker image to a Vagrantbox 
 Run the installer:
 
 ```shell
+cd ansible
 make install
 ```
 
