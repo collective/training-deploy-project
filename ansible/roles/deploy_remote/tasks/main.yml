@@ -1,5 +1,12 @@
 ---
 ## tasks file for deploy_remote
+  - name: grab hostvars
+    setup:
+
+  - name: Set devUser
+    set_fact:
+      devUser: "{{ hostvars['vm-ansible-host']['ansible_user'] }}"
+
   - name: Set remoteHost
     set_fact:
       remoteHost: "{{ hostvars['vm-ansible-remote']['ansible_host'] }}"
@@ -9,12 +16,13 @@
       remotePort: "{{ hostvars['vm-ansible-remote']['ansible_port'] }}"
 
   - name: check if vm-ansible-remote docker context exits
-    shell: docker context inspect vagrant
-    register: vagrantexists
-    when: vagrantexists.stdout | length < 0
+    shell: docker context inspect vm-ansible-remote | jq -r ".[].Name"
+    register: remoteexists
+    ignore_errors: yes
   
   - name: create docker context
-    shell: docker context create vm-ansible-remote --description "Plone Deployment training" --docker "host=ssh://{{ remoteHost }}:{{ remotePort }}"
+    shell: docker context create vm-ansible-remote --description "Plone Deployment training" --docker "host=ssh://plone@{{ remoteHost }}:{{ remotePort }}"
+    when: remoteexists.stdout != "vm-ansible-remote"
 
   - name: make compose-pull-remote
     shell: make compose-pull-remote
