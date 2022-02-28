@@ -4,9 +4,9 @@
     name: "Run Specific Role"
     vars:
       mymenu:
-        - build-dev-vm
-        - build-local-vm
-        - build-remote-vm
+        - Build Development Environment
+        - Deploy Local Staging VM
+        - Deploy Remote Production VM
       allowed_items:
         - "1"
         - "2"
@@ -18,22 +18,20 @@
     - name: runmenu
       prompt: "Run\n1 - {{ mymenu[0] }}\n2 - {{ mymenu[1] }}\n3 - {{ mymenu[2] }}\n[Enter Values 1,2,3]"
       private: no 
+    tasks:
+    - name: Set Fact
+      set_fact:
+        menu{{ item  }}: "menu{{ item  }}"
+      with_items: "{{ runmenu.split(',') }}"
+      when: item in allowed_items
+
+  - hosts: hostfacts
+    gather_facts: False
     pre_tasks:
     - block:
       - name: Generate an OpenSSH keypair with the default values (4096 bits, rsa)
         openssh_keypair:
           path: /home/{{ ansible_user }}/.ssh/id_rsa
-      - name: Set Fact
-        set_fact:
-          menu{{ item  }}: "menu{{ item  }}"
-        with_items: "{{ runmenu.split(',') }}"
-        when: item in allowed_items
-
-  - hosts: hostfacts
-    become: no
-    gather_facts: True
-    pre_tasks:
-    - block:
       - name: Set devUser
         set_fact:
           devUser: "{{ hostvars['vm-ansible-host']['ansible_user'] }}"
@@ -43,10 +41,30 @@
           chdir: /home/{{ devUser }}/training-deploy-project/ansible/roles/deploy_local/
         when: menu2|d('')
 
+  - hosts: vagrant
+    gather_facts: False
+    become: yes
+    pre_tasks:
+    - block:
+      - name: Generate an OpenSSH keypair with the default values (4096 bits, rsa)
+        openssh_keypair:
+          path: /home/{{ ansible_user }}/.ssh/id_rsa
+      - name: "Store which_host variable"
+        set_fact:
+          which_host: "local"
+ 
+    name: "Deploy local setup"
+    roles:
+      - {role: setup_client, tags: 'setup_client_local', when: menu2|d('')}
+
   - hosts: vm-ansible-remote
-    become: no
+    gather_facts: False
+    become: yes
     pre_tasks:
       - block:
+        - name: Generate an OpenSSH keypair with the default values (4096 bits, rsa)
+          openssh_keypair:
+            path: /home/{{ ansible_user }}/.ssh/id_rsa
         - name: "Prompt for Remote password"
           pause:
             prompt: "Remote Plone VM Password"
@@ -61,19 +79,16 @@
         - name: "Store ploneVM_name variable"
           set_fact:
             ploneVM_name: "{{ result.user_input }}"
+        - name: "Store which_host variable"
+          set_fact:
+            which_host: "remote"
         when: menu3|d('')
     name: "Deploy remote setup"
     roles:
-      - {role: setup_client, tags: 'setup_client', when: menu3|d('')}
-
-  - hosts: vagrant
-    gather_facts: True
-    become: yes
-    name: "Deploy local setup"
-    roles:
-      - {role: setup_client, tags: 'setup_client', when: menu2|d('')}
+      - {role: setup_client, tags: 'setup_client_remote', when: menu3|d('')}
       
   - hosts: vm-ansible-host
+    gather_facts: False
     become: no
     name: "Deploy environment or create new VM"
     roles:
