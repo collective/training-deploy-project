@@ -9,7 +9,7 @@
 
 ## Setup backend
 
-Create a Python virtual environment, install Plone 6.0.0a1 and one addon.
+Create a Python virtual environment, install Plone 6.0.0a3 and one addon.
 
 ```shell
 cd backend
