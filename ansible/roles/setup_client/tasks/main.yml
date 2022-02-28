@@ -13,6 +13,7 @@
       update_cache: yes
 
   - name: Install Docker Python Packages
+    become: no
     ansible.builtin.pip:
       name:
         - docker
@@ -31,14 +32,9 @@
       state: present
    
   - name: Set SSH Key for plone
-    vars:
-      playbook2: "{{ hostvars['vm-ansible-host']['playbook_idrsa2'] }}"
-    ansible.builtin.authorized_key:
-      user: plone
-      key: "{{ item }}"
-      state: present
-    with_items:
-      - "{{ playbook2 }}"
+    authorized_key: user=plone key="{{item}}"
+    with_file:
+      - /home/{{ hostvars['vm-ansible-host']['ansible_user'] }}/.ssh/id_rsa.pub
 
   - name: Create Project directory
     ansible.builtin.file:
@@ -48,18 +44,14 @@
       group: plone
       mode: 0750
 
-  - name: debug
-    debug:
-      msg: "{{ host }}"
-
-  - name: Copy configuration Local
+  - name: Copy configuration Remote
     ansible.builtin.copy:
       src: ../deploy_remote/docker-compose.yml
       dest: /home/plone/project/docker-compose.yml
       owner: plone
       group: plone
       mode: 0640
-      when: '"{{ host }}" == "vm-ansible-remote"'
+    when: which_host == 'remote'
 
   - name: Copy configuration Local
     ansible.builtin.copy:
@@ -68,10 +60,7 @@
       owner: plone
       group: plone
       mode: 0640
-      when: '"{{ host }}" == "vagrant"'
-  - name: "Pause for debug"
-    pause:
-      prompt: "Do you want to continue?"
+    when: which_host == 'local'
 
   - name: Copy configuration
     ansible.builtin.copy:
