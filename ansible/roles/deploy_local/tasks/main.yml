@@ -1,0 +1,28 @@
+---
+# tasks file for local
+  - name: grab hostvars
+    setup:
+
+  - name: Set devUser
+    set_fact:
+      devUser: "{{ hostvars['vm-ansible-host']['ansible_user'] }}"
+
+  - name: check if vagrant docker context exits
+    shell: docker context inspect vagrant | jq -r ".[].Name"
+    register: vagrantexists
+    ignore_errors: yes
+    
+  - name: create docker context
+    shell: docker context create vagrant --description "Plone Deployment training" --docker "host=ssh://plone@127.0.0.1:2222"
+    when: vagrantexists.stdout != "vagrant"
+
+  - name: make compose-pull-local
+    shell: make compose-pull-local
+    args:
+      chdir: /home/{{ devUser }}/training-deploy-project/ansible/roles/deploy_local/
+
+  - name: make compose-up-local
+    shell: make compose-up-local
+    args:
+      chdir: /home/{{ devUser }}/training-deploy-project/ansible/roles/deploy_local/
+

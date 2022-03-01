@@ -16,6 +16,9 @@ GREEN=`tput setaf 2`
 RESET=`tput sgr0`
 YELLOW=`tput setaf 3`
 
+# Set kernel info
+KERNEL=`uname -r`
+
 .PHONY: all
 all: build
 
@@ -31,8 +34,9 @@ clean: ## remove all build, test, coverage and Python artifacts
 
 bin/pip:
 	@echo "$(GREEN)==> Setup Virtual Env$(RESET)"
+	sudo apt install python3-venv python3-pip sshpass libsdl-ttf2.0-0 linux-image-$(KERNEL) linux-headers-$(KERNEL) -y
 	python3 -m venv .
-	bin/pip install -U pip
+	bin/pip3 install -U pip
 
 bin/ansible: bin/pip
 	@echo "$(GREEN)==> Setup Ansible $(RESET)"
@@ -42,29 +46,6 @@ bin/ansible: bin/pip
 setup: bin/ansible ## Create VirtualEnv and install Ansible via Pip
 	@echo "$(GREEN)==> Ansible available at ./bin/ansible $(RESET)"
 
-.PHONY: vagrant-provision
-vagrant-destroy: bin/ansible ## Provision Vagrant box 
-	@echo "$(GREEN)==> Provision Vagrant box $(RESET)"
-	sudo vagrant destroy
-	sudo rm .vagrant_private_key .vagrant
-
-.PHONY: vagrant-provision
-vagrant-provision: bin/ansible ## Provision Vagrant box 
-	@echo "$(GREEN)==> Provision Vagrant box $(RESET)"
-	sudo vagrant up
-	sudo cp .vagrant/machines/default/virtualbox/private_key .vagrant_private_key
-	USER=`whoami` sudo chown ${USER}: .vagrant_private_key
-	ssh-keygen -f ~/.ssh/known_hosts -R "[127.0.0.1]:2222"
-
-.PHONY: playbook-setup
-playbook-setup: bin/ansible ## Run playbook
-	@echo "$(GREEN)==> Apply playbook $(RESET)"
-	./bin/ansible-playbook -i hosts playbook-setup.yml
-
-.PHONY: compose-pull
-compose-pull: ## Run Compose pull
-	docker-compose --context vagrant --project-directory project pull
-
-.PHONY: compose-up
-compose-up: ## Run Compose up
-	docker-compose --context vagrant --project-directory project up -d
+.PHONY: install
+install: ## start the installer
+	bin/ansible-playbook ~/training-deploy-project/ansible/playbook.yml -i hosts --ask-become-pass
