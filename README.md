@@ -43,7 +43,7 @@ Addon name, plus extra loaders, like: volto-addon:loadExtra,loadAnotherExtra vol
 Would you like to add another addon? false
 ```
 
-Edit ```frontend/package.json``` and change ```"@plone/volto": "13.15.1",``` to ```"@plone/volto": "14.0.0-alpha.23",```
+Edit ```frontend/package.json``` and change ```"@plone/volto": "13.15.1",``` to ```"@plone/volto": "14.0.0-node16",```
 
 And run ```cd frontend && yarn```
 
