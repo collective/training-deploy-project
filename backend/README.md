@@ -3,7 +3,7 @@
 ## Local Setup
 
 ```shell
-make setup
+make build
 ```
 
 ## Start Plone
